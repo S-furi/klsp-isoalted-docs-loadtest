@@ -37,14 +37,14 @@ object LoadTest {
     private const val CH = 12
 
 
-    suspend fun performNParallelCompletionsChunked(n: Int, chunkSize: Int = 100) = client.use {
+    suspend fun performNParallelCompletionsChunked(n: Int, chunkSize: Int = 100, requestsPerClient: Int = 50) = client.use {
         val times = (0 until n).chunked(chunkSize).flatMap { chunk ->
             println("Running chunk ${chunk.first()}-${chunk.last()} ...")
             chunk.map { idx ->
                 coroutineScope {
                     async {
                         measureTime {
-                            simulateClient(idx, chunkSize)
+                            simulateClient(idx, 50)
                         }
                     }
                 }
@@ -57,14 +57,14 @@ object LoadTest {
 
     suspend fun simulateClient(id: Int, requests: Int) {
         repeat(requests) {
-            getCompletionAnalytics(client, id).onFailure {
+            getCompletionAnalytics().onFailure {
                 println("[client-$id] Failure: $it")
             }
-            delay(Random.nextLong(100, 600))
+            delay(Random.nextLong(100, 500))
         }
     }
 
-    suspend fun getCompletionAnalytics(client: HttpClient, idx: Int): Result<Duration> =
+    suspend fun getCompletionAnalytics(): Result<Duration> =
         runCatching {
             coroutineScope {
                 measureTime {
