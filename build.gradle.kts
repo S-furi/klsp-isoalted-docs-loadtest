@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.bundles.ktor)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.bundles.letsplot)
 }
 
 tasks.test {

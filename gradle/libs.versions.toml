@@ -4,6 +4,8 @@ kotlinx-coroutines = "1.7.3"
 logback = "1.5.18"
 ktor = "3.2.3"
 serialization = "1.9.0"
+letsplot = "4.11.2"
+letsplotBatik = "4.7.3"
 
 [libraries]
 org-eclipse-lsp4j = { group = "org.eclipse.lsp4j", name = "org.eclipse.lsp4j", version.ref = "lsp4j" }
@@ -14,6 +16,9 @@ ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "
 ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization"}
+letsplot-kotlin-jvm = {group = "org.jetbrains.lets-plot", name = "lets-plot-kotlin-jvm", version.ref = "letsplot" }
+letsplot-batik = { group = "org.jetbrains.lets-plot", name = "lets-plot-batik", version.ref = "letsplotBatik" }
+letsplot-image-export = { group = "org.jetbrains.lets-plot", name = "lets-plot-image-export", version.ref = "letsplotBatik" }
 
 [bundles]
 ktor = [
@@ -23,3 +28,8 @@ ktor = [
     "ktor-client-serialization-json",
 ]
 
+letsplot = [
+    "letsplot-kotlin-jvm",
+    "letsplot-batik",
+    "letsplot-image-export",
+]

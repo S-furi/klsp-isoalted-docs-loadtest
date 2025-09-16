@@ -1,3 +1,5 @@
+package local
+
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -7,15 +9,10 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 import kotlin.time.Duration
@@ -44,7 +41,7 @@ object LoadTest {
                 coroutineScope {
                     async {
                         measureTime {
-                            simulateClient(idx, 50)
+                            simulateClient(idx, requestsPerClient)
                         }
                     }
                 }
@@ -95,17 +92,3 @@ data class Project(
 
 @Serializable
 data class ProjectFile(val name: String, val text: String)
-
-fun main() {
-    runBlocking {
-        val scope = CoroutineScope(context = SupervisorJob() + Dispatchers.IO)
-        scope.launch {
-            MemoryMetrics.runCollectingJvmMetrics {
-                val time = measureTime {
-                    LoadTest.performNParallelCompletionsChunked(10_000, chunkSize = 1_000)
-                }
-                println("Total time: $time")
-            }
-        }.join()
-    }
-}

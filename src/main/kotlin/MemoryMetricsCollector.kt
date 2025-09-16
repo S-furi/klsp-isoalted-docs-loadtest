@@ -7,12 +7,14 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 import java.lang.management.GarbageCollectorMXBean
 import java.lang.management.ManagementFactory
 import java.lang.management.MemoryMXBean
+import DataHandler.streamToJsonFile
+import kotlinx.serialization.Serializable
 import java.time.Instant
 import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXServiceURL
@@ -20,17 +22,28 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-object MemoryMetrics {
+object MemoryMetricsCollector {
 
-    suspend fun runCollectingJvmMetrics(body: suspend () -> Unit) = coroutineScope {
+    suspend fun runCollectingJvmMetricsStdout(body: suspend () -> Unit) = coroutineScope {
+        runCollectingJvmMetrics(samplesConsumer = { DataHandler.showSamples(it) }, body)
+    }
+
+    suspend fun runK6CollectingJvmMetricsJson(outputJson: String = "resultsJvm.json") = coroutineScope {
+        runCollectingJvmMetrics(samplesConsumer = { it.streamToJsonFile(File(outputJson), MemorySample.serializer()) }) {
+            ProcessBuilder("k6", "run", "--out", "influxdb=http://localhost:8086/k6", "k6loadtest/loadtest-rest.js" )
+                .inheritIO()
+                .start()
+                .waitFor()
+        }
+    }
+
+    suspend fun runCollectingJvmMetrics(samplesConsumer: suspend (Flow<MemorySample>) -> Unit, body: suspend () -> Unit) = coroutineScope {
         val jvms: List<VirtualMachineDescriptor> = VirtualMachine.list()
-        jvms.forEach { println("PID: ${it.id()} - ${it.displayName()}") }
         val lspJvm = jvms.firstOrNull { it.displayName().contains("com.jetbrains.ls.kotlinLsp.KotlinLspServerKt --multi-client --isolated-documents") } ?: error("LSP is not running")
-
         val samplesFlow = monitorJvm(lspJvm, 500.milliseconds)
 
         val monitorJob = launch {
-            showSamples(samplesFlow)
+            samplesConsumer(samplesFlow)
         }
 
         val loadJob = launch(Dispatchers.IO) {
@@ -44,16 +57,6 @@ object MemoryMetrics {
         println("Monitoring finished.")
     }
 
-    private suspend fun showSamples(samples: Flow<MemorySample>) {
-        samples
-            .onCompletion { println("Sample flow completed.") }
-            .collect { sample ->
-                println(
-                    "${sample.timestamp} | Heap: ${sample.heapUsed / 1024 / 1024} MB / ${sample.heapCommitted / 1024 / 1024} MB | " +
-                            "NonHeap: ${sample.nonHeapUsed / 1024 / 1024} MB | GCs: ${sample.gcCounts}"
-                )
-            }
-    }
     private fun monitorJvm(vmDescriptor: VirtualMachineDescriptor, every: Duration): Flow<MemorySample> = flow {
         val vm = VirtualMachine.attach(vmDescriptor)
 
@@ -80,7 +83,7 @@ object MemoryMetrics {
                 val nonHeap = memoryMXBean.nonHeapMemoryUsage
                 val gcCounts = gcBeans.associate { it.name to it.collectionCount }
                 val gcTimes = gcBeans.associate { it.name to it.collectionTime }
-                emit(MemorySample(Instant.now(), heap.used, heap.committed, nonHeap.used, gcCounts, gcTimes))
+                emit(MemorySample(Instant.now().toString(), heap.used, heap.committed, nonHeap.used, gcCounts, gcTimes))
                 delay(every.inWholeMilliseconds)
             }
         } finally {
@@ -89,8 +92,9 @@ object MemoryMetrics {
         }
     }
 
+    @Serializable
     data class MemorySample(
-        val timestamp: Instant,
+        val timestamp: String,
         val heapUsed: Long,
         val heapCommitted: Long,
         val nonHeapUsed: Long,
