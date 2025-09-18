@@ -6,6 +6,7 @@ ktor = "3.2.3"
 serialization = "1.9.0"
 letsplot = "4.11.2"
 letsplotBatik = "4.7.3"
+influxdb = "7.3.0"
 
 [libraries]
 org-eclipse-lsp4j = { group = "org.eclipse.lsp4j", name = "org.eclipse.lsp4j", version.ref = "lsp4j" }
@@ -19,6 +20,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 letsplot-kotlin-jvm = {group = "org.jetbrains.lets-plot", name = "lets-plot-kotlin-jvm", version.ref = "letsplot" }
 letsplot-batik = { group = "org.jetbrains.lets-plot", name = "lets-plot-batik", version.ref = "letsplotBatik" }
 letsplot-image-export = { group = "org.jetbrains.lets-plot", name = "lets-plot-image-export", version.ref = "letsplotBatik" }
+influxdb-client-kotlin = { group = "com.influxdb", name = "influxdb-client-kotlin", version.ref = "influxdb"}
 
 [bundles]
 ktor = [

@@ -1,3 +1,4 @@
+import DataHandler.dumpToInfluxDb
 import com.sun.tools.attach.VirtualMachine
 import com.sun.tools.attach.VirtualMachineDescriptor
 import kotlinx.coroutines.Dispatchers
@@ -28,10 +29,19 @@ object MemoryMetricsCollector {
         runCollectingJvmMetrics(samplesConsumer = { DataHandler.showSamples(it) }, body)
     }
 
-    suspend fun runK6CollectingJvmMetricsJson(outputJson: String = "resultsJvm.json") = coroutineScope {
-        runCollectingJvmMetrics(samplesConsumer = { it.streamToJsonFile(File(outputJson), MemorySample.serializer()) }) {
-            ProcessBuilder("k6", "run", "--out", "influxdb=http://localhost:8086/k6", "k6loadtest/loadtest-rest.js" )
-                .inheritIO()
+    suspend fun runK6CollectingJvmMetricsJson(outputJson: String = "resultsJvm.json", withInfluxDb: Boolean = false) = coroutineScope {
+        val samplesConsumer: suspend (Flow<MemorySample>) -> Unit =
+            if (withInfluxDb) {
+                { it.dumpToInfluxDb() }
+            } else {
+                { it.streamToJsonFile(File(outputJson), MemorySample.serializer()) }
+            }
+
+        val testOutputDump = if (withInfluxDb) "influxdb=http://localhost:8086/k6" else "json=$outputJson"
+
+        runCollectingJvmMetrics(samplesConsumer) {
+            ProcessBuilder("k6", "run", "--out", testOutputDump, "k6loadtest/loadtest-rest.js" )
+                .redirectErrorStream(true)
                 .start()
                 .waitFor()
         }
@@ -100,5 +110,6 @@ object MemoryMetricsCollector {
         val nonHeapUsed: Long,
         val gcCounts: Map<String, Long>,
         val gcTimes: Map<String, Long>,
+        val gcPauseTimes: Map<String, Double> = gcCounts.mapValues { (name, count) -> (gcTimes[name] ?: 0) / count.toDouble() }
     )
 }

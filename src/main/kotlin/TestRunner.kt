@@ -20,15 +20,21 @@ object TestRunner {
         }.join()
     }
 
-    suspend fun k6MassiveTest() {
+    suspend fun k6MassiveTestToJsonOutput() {
         val outFile = "results-jvm-rest.json"
         scope.launch {
-            MemoryMetricsCollector.runK6CollectingJvmMetricsJson(outFile)
+            MemoryMetricsCollector.runK6CollectingJvmMetricsJson(outputJson = outFile)
         }.join()
         DataHandler.plotMemoryMetrics(outFile)
+    }
+
+    suspend fun k6MassiveTestForGrafanaVisualisation() {
+        scope.launch {
+            MemoryMetricsCollector.runK6CollectingJvmMetricsJson(withInfluxDb = true)
+        }.join()
     }
 }
 
 fun main() = runBlocking {
-    TestRunner.k6MassiveTest()
+    TestRunner.k6MassiveTestForGrafanaVisualisation()
 }

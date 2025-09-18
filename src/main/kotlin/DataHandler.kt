@@ -1,11 +1,13 @@
 import MemoryMetricsCollector.MemorySample
+import com.influxdb.client.domain.WritePrecision
+import com.influxdb.client.kotlin.InfluxDBClientKotlinFactory
+import com.influxdb.client.write.Point
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.letsPlot.export.ggsave
 import org.jetbrains.letsPlot.geom.geomLine
@@ -56,6 +58,10 @@ object DataHandler {
         }
     }
 
+    suspend fun Flow<MemorySample>.dumpToInfluxDb() {
+        collect { InfluxDbConnection.writeMemorySample(it) }
+    }
+
     fun plotMemoryMetrics(jsonFile: String) {
         val text = File(jsonFile).readText()
         val samples = Json.decodeFromString<List<MemorySample>>(text)
@@ -73,15 +79,37 @@ object DataHandler {
 
         ggsave(p, "memory_plot.png")
     }
+}
 
-    @Serializable
-    data class K6Point(val type: String, val data: K6Data)
+internal object InfluxDbConnection {
+    private val client by lazy { InfluxDBClientKotlinFactory.create("http://localhost:8086", "my-token".toCharArray(), "my-org", "k6") }
+    private val writeApi = client.getWriteKotlinApi()
 
-    @Serializable
-    data class K6Data(
-        val time: String,
-        val type: String,
-        val metric: String,
-        val value: Double,
-    )
+    private fun MemorySample.toPoints(): Iterable<Point> = buildList {
+        addAll(
+            listOf(
+                Point.measurement("heap_used").addField("value", heapUsed.toMB())
+                    .time(Instant.parse(timestamp), WritePrecision.MS),
+                    Point.measurement("non_heap_used").addField("value", nonHeapUsed.toMB())
+                .time(Instant.parse(timestamp), WritePrecision.MS),
+                    Point.measurement("heap_committed").addField("value", heapCommitted.toMB())
+                .time(Instant.parse(timestamp), WritePrecision.MS),
+            ),
+        )
+
+        addAll(gcCounts.map { (name, count) ->
+            Point.measurement("gc_count_$name").addField("value", count)
+                .time(Instant.parse(timestamp), WritePrecision.MS)
+        })
+        addAll(gcTimes.map { (name, time) ->
+            Point.measurement("gc_time_$name").addField("value", time)
+                .time(Instant.parse(timestamp), WritePrecision.MS)
+        })
+    }
+
+    private fun Long.toMB() = this.toDouble() / 1024.0 / 1024.0
+
+    suspend fun writeMemorySample(sample: MemorySample) {
+        writeApi.writePoints(sample.toPoints())
+    }
 }
