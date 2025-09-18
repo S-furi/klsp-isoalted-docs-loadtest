@@ -302,11 +302,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 2,
-      "libraryPanel": {
-        "uid": "eeygdi3p7k1kwc",
-        "name": "Gc counts"
-      }
+      "id": 2
     },
     {
       "gridPos": {
@@ -315,11 +311,7 @@
         "x": 0,
         "y": 10
       },
-      "id": 3,
-      "libraryPanel": {
-        "uid": "aeygdm5lm1se8d",
-        "name": "Gc times"
-      }
+      "id": 3
     },
     {
       "datasource": {

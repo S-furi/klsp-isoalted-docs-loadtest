@@ -746,11 +746,7 @@
         "x": 0,
         "y": 1
       },
-      "id": 1,
-      "libraryPanel": {
-        "uid": "feygdndn43lkwa",
-        "name": "REST - Requests duration"
-      }
+      "id": 1
     },
     {
       "gridPos": {
@@ -759,11 +755,7 @@
         "x": 0,
         "y": 9
       },
-      "id": 3,
-      "libraryPanel": {
-        "uid": "beygdnvnr8e0wc",
-        "name": "REST - Mean request time (ms)"
-      }
+      "id": 3
     },
     {
       "gridPos": {
@@ -772,11 +764,7 @@
         "x": 6,
         "y": 9
       },
-      "id": 5,
-      "libraryPanel": {
-        "uid": "feygdoih6ubk0d",
-        "name": "REST - MAX request time (ms)"
-      }
+      "id": 5
     },
     {
       "gridPos": {
@@ -785,11 +773,7 @@
         "x": 0,
         "y": 14
       },
-      "id": 6,
-      "libraryPanel": {
-        "uid": "ceygdoxac64g0d",
-        "name": "REST - Failed Completions"
-      }
+      "id": 6
     },
     {
       "gridPos": {
@@ -798,11 +782,7 @@
         "x": 0,
         "y": 19
       },
-      "id": 7,
-      "libraryPanel": {
-        "uid": "beygdpde3lpmoc",
-        "name": "REST - Failed Completions over time"
-      }
+      "id": 7
     },
     {
       "gridPos": {
@@ -811,11 +791,7 @@
         "x": 0,
         "y": 24
       },
-      "id": 8,
-      "libraryPanel": {
-        "uid": "eeygdpsq95p8gb",
-        "name": "REST - Req/s"
-      }
+      "id": 8
     }
   ],
   "refresh": "",
