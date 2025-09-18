@@ -2,39 +2,25 @@ import ws from "k6/ws";
 ws;
 import { Trend } from "k6/metrics";
 import { check, sleep } from "k6";
+import {
+  retrieveOptions,
+  latency,
+  WS_HOST,
+  MAX_LATENCY_MS,
+  checkCompletionResponse,
+  getRandomCompletionScenario,
+} from "./testUtils.js";
 
-export const options = {
-  scenarios: {
-    websocket_load: {
-      executor: "ramping-vus",
-      stages: [
-        { duration: "10s", target: 30 },
-        { duration: "1m", target: 30 },
-        { duration: "5s", target: 50 },
-        { duration: "1m", target: 50 },
-        { duration: "10s", target: 0 },
-      ],
-      gracefulRampDown: "10s",
-    },
-  },
-  thresholds: {
-    ws_connecting: ["p(95)<1000"], // connections should succeed quickly
-    ws_msgs_sent: ["count>0"], // at least one message sent per VU
-    ws_msgs_received: ["count>0"], // at least one message received per VU
-  },
-};
-
-const HOST = "ws://localhost:8080/lsp/complete";
-const MAX_LATENCY_MS = 2000;
-
-const ws_latency = new Trend("ws_latency");
+export const options = retrieveOptions(30, 50, {
+  ws_connecting: ["p(95)<1000"], // connections should succeed quickly
+});
 
 export default function () {
   const params = { headers: { "Content-Type": "application/json" } };
   let intervalId;
   let isVUActive = true;
 
-  const res = ws.connect(HOST, params, function (socket) {
+  const res = ws.connect(WS_HOST, params, function (socket) {
     socket.on("open", function () {
       console.log(`VU ${__VU}: WebSocket connection opened`);
 
@@ -43,19 +29,21 @@ export default function () {
           return;
         }
 
+        const completionScenario = getRandomCompletionScenario();
+
         const payload = JSON.stringify({
           project: {
             args: "",
             files: [
               {
-                name: "file.kt",
-                text: "fun main() {\n    3.0.toIn\n}",
+                name: completionScenario.filename,
+                text: completionScenario.snippet,
               },
             ],
             confType: "java",
           },
-          line: 1,
-          ch: 12,
+          line: completionScenario.line,
+          ch: completionScenario.ch,
         });
 
         const start = Date.now();
@@ -63,12 +51,13 @@ export default function () {
 
         socket.on("message", function messageHandler(msg) {
           const elapsed = Date.now() - start;
-          ws_latency.add(elapsed);
-
-          check(msg, {
-            "response contains completion": (m) => m && m.includes("toInt"),
-            [`response < ${MAX_LATENCY_MS}ms`]: () => elapsed < MAX_LATENCY_MS,
-          });
+          latency.add(elapsed);
+          checkCompletionResponse(
+            msg,
+            completionScenario.expected,
+            completionScenario.snippet,
+            elapsed,
+          );
         });
       };
 
@@ -114,8 +103,8 @@ export default function () {
   check(res, { "status is 101": (r) => r && r.status === 101 });
 
   try {
-    // Sleep for a very long time - K6 will interrupt this when ramping down
-    sleep(3600);
+    // Sleep for a very long time K6 will interrupt this when ramping down
+    sleep(10000);
   } catch (e) {
     console.log(`VU ${__VU}: Sleep interrupted - likely due to ramp down`);
   } finally {
