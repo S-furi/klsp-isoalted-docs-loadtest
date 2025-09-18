@@ -120,7 +120,6 @@ export function checkCompletionResponse(
   const missing = expected.filter((exp) => !response.includes(exp));
 
   let ok = found.length > 0; // at least one completion is ok
-  console.log(`found: ${found.join(", ")}`);
 
   check(response, {
     "response contains at least one expected completion": () => ok,
