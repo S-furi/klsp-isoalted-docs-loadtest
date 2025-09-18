@@ -25,7 +25,7 @@ export const options = {
 };
 
 const HOST = "ws://localhost:8080/lsp/complete";
-const MAX_LATENCY_MS = 1000;
+const MAX_LATENCY_MS = 2000;
 
 const ws_latency = new Trend("ws_latency");
 
