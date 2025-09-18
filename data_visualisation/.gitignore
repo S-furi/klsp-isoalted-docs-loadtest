@@ -1,0 +1,25 @@
+# Runtime data directories
+grafana-data/
+influxdb-data/
+
+# Logs
+*.log
+logs/
+
+# Docker
+.env
+docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
