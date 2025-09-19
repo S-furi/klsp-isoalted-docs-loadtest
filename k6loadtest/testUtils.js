@@ -1,6 +1,5 @@
-import { check, sleep } from "k6";
+import { check } from "k6";
 import { Counter, Rate, Trend } from "k6/metrics";
-import { WebSocketError } from "k6/ws";
 
 export const MAX_LATENCY_MS = 2000;
 export const MAX_COMPLETION_FAILURE_RATE = 0.1;
@@ -27,7 +26,8 @@ export function retrieveOptions(minClients, maxClients, thresholds) {
   };
 }
 
-export const REST_HOST = "http://localhost:8080/api/compiler/lsp/complete";
+export const REST_LSP_HOST = "http://localhost:8080/api/compiler/lsp/complete";
+export const REST_COMPILER_HOST = "http://localhost:8080/api/compiler/complete" 
 export const WS_HOST = "ws://localhost:8080/lsp/complete";
 export const latency = new Trend("latency");
 export const completionFailures = new Counter("completion_failures");
@@ -146,7 +146,8 @@ export function checkCompletionResponse(
         `expected: ${expected.join(", ")}\n` +
         `found: ${found.join(", ")}\n` +
         `missing: ${missing.join(", ")}\n` +
-        `for code:\n${codeSnippet}`,
+        `for code:\n${codeSnippet}\n` +
+        `with response: \b${response}`,
     );
   }
 

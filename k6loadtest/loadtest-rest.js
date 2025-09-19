@@ -1,14 +1,15 @@
-import http, { file } from "k6/http";
+import http from "k6/http";
 import { check, sleep } from "k6";
 import {
   checkCompletionResponse,
   getRandomCompletionScenario,
   MAX_LATENCY_MS,
-  REST_HOST,
+  REST_COMPILER_HOST,
+  REST_LSP_HOST,
   retrieveOptions,
 } from "./testUtils.js";
 
-export const options = retrieveOptions(50, 100, {
+export const options = retrieveOptions(100, 150, {
   http_req_failed: ["rate<0.05"],
   http_req_duration: [`p(95)<${MAX_LATENCY_MS}`],
 });
@@ -26,7 +27,7 @@ export default function () {
   const params = { headers: { "Content-Type": "application/json" } };
 
   const res = http.post(
-    `${REST_HOST}?line=${completionScenario.line}&ch=${completionScenario.ch}`,
+    `${REST_LSP_HOST}?line=${completionScenario.line}&ch=${completionScenario.ch}`,
     payload,
     params,
   );
