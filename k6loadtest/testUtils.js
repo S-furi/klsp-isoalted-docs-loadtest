@@ -1,4 +1,4 @@
-import { check } from "k6";
+import { check, sleep } from "k6";
 import { Counter, Rate, Trend } from "k6/metrics";
 
 export const MAX_LATENCY_MS = 2000;
@@ -127,7 +127,7 @@ export function checkCompletionResponse(
 
   if (elapsedTime) {
     check(response, {
-      [`response < ${MAX_LATENCY_MS}ms`]: () => elapsed < MAX_LATENCY_MS,
+      [`response < ${MAX_LATENCY_MS}ms`]: () => elapsedTime < MAX_LATENCY_MS,
     });
   }
 
@@ -152,4 +152,12 @@ export function checkCompletionResponse(
   }
 
   return ok;
+}
+
+export function randomInRange(min, max) {
+    return Math.random() * (max - min) + min
+}
+
+export function randomSleep (min, max) {
+  sleep(randomInRange(min, max));
 }

@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { check, sleep } from "k6";
+import { check } from "k6";
 import {
   checkCompletionResponse,
   getRandomCompletionScenario,
@@ -7,6 +7,7 @@ import {
   REST_COMPILER_HOST,
   REST_LSP_HOST,
   retrieveOptions,
+  randomSleep,
 } from "./testUtils.js";
 
 export const options = retrieveOptions(100, 150, {
@@ -40,7 +41,3 @@ export default function () {
   );
   randomSleep(0.1, 0.4);
 }
-
-const randomSleep = (min, max) => {
-  sleep(Math.random() * (max - min + 1) + min);
-};
