@@ -1,6 +1,6 @@
 # Runtime data directories
 grafana-data/
-influxdb-data/
+# influxdb-data/
 
 # Logs
 *.log
