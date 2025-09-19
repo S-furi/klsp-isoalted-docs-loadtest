@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 8,
+  "id": 4,
   "links": [],
   "panels": [
     {
@@ -53,7 +53,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -68,7 +68,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": true,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -93,7 +93,41 @@
           },
           "unit": "ms"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Number of connections"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Number of connections"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    30
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "unit"
+              },
+              {
+                "id": "custom.spanNulls",
+                "value": false
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -578,7 +612,7 @@
             },
             {
               "params": [
-                "null"
+                "0"
               ],
               "type": "fill"
             }
@@ -598,7 +632,7 @@
               },
               {
                 "params": [],
-                "type": "mean"
+                "type": "sum"
               }
             ]
           ],
@@ -627,7 +661,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 13,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -666,7 +700,37 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Number of connections"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    30
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "unit"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Number of connections"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -848,7 +912,41 @@
           },
           "unit": "decmbytes"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Number of connections (proxy)"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    30
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Number of Connections"
+              },
+              {
+                "id": "unit"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 10,
@@ -1099,9 +1197,48 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "GCs"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Number of connections (proxy)"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    30
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Number of connections"
+              },
+              {
+                "id": "unit"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -1109,7 +1246,7 @@
         "x": 0,
         "y": 36
       },
-      "id": 3,
+      "id": 13,
       "options": {
         "legend": {
           "calcs": [],
@@ -1126,7 +1263,7 @@
       "pluginVersion": "12.1.1",
       "targets": [
         {
-          "alias": "Young Generation GC Counts",
+          "alias": "Young Generation GC Times",
           "datasource": {
             "type": "influxdb",
             "uid": "P4B5EB7AC8565B06F"
@@ -1211,7 +1348,7 @@
           "tags": []
         },
         {
-          "alias": "Old Generation GC Counts",
+          "alias": "Old Generation GC Times",
           "datasource": {
             "type": "influxdb",
             "uid": "P4B5EB7AC8565B06F"
@@ -1254,7 +1391,7 @@
           "tags": []
         },
         {
-          "alias": "Concurrent GC GC Counts",
+          "alias": "Concurrent GC GC Times",
           "datasource": {
             "type": "influxdb",
             "uid": "P4B5EB7AC8565B06F"
@@ -1356,9 +1493,48 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "GC/s"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Number of connections (proxy)"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    30
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Number of connections"
+              },
+              {
+                "id": "unit"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -1559,18 +1735,19 @@
     }
   ],
   "preload": false,
+  "refresh": "auto",
   "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "2025-09-18T13:27:59.078Z",
-    "to": "2025-09-18T13:30:28.000Z"
+    "from": "2025-09-19T11:43:11.000Z",
+    "to": "2025-09-19T11:45:36.912Z"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Aggregate",
   "uid": "62efdae5-51fe-4d51-972e-23cd4fd50c37",
-  "version": 2
+  "version": 1
 }
